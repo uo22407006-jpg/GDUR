@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediEquip DB — Sistema de Equipos Médicos</title>
+  <link rel="stylesheet" href="src/styles/main.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+  <div id="app">
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <div class="nav-brand">
+        <span class="nav-cross">✚</span>
+        <span class="nav-title">MediEquip<span class="accent">DB</span></span>
+      </div>
+      <div class="nav-links">
+        <a href="#dashboard" class="nav-link active" onclick="showView('dashboard')">Base de Datos</a>
+        <a href="#qr-generator" class="nav-link" onclick="showView('qr-generator')">Generar QR</a>
+        <a href="#admin" class="nav-link" onclick="showView('admin')">Administrar</a>
+      </div>
+      <div class="nav-badge">Hospital General</div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="hero" id="view-dashboard-hero">
+      <div class="hero-grid-bg"></div>
+      <div class="hero-content">
+        <div class="hero-tag">Sistema de gestión v1.0</div>
+        <h1 class="hero-title">Equipo Médico<br/><span class="hero-accent">Digital</span></h1>
+        <p class="hero-sub">Base de datos con acceso instantáneo vía código QR a guías de uso rápido para cada equipo registrado.</p>
+        <div class="hero-stats">
+          <div class="stat-pill"><span id="stat-total">3</span> Equipos</div>
+          <div class="stat-pill"><span>3</span> Categorías</div>
+          <div class="stat-pill"><span>QR</span> Activos</div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="device-card-float">
+          <div class="dcf-icon">⚡</div>
+          <div class="dcf-text">Desfibrilador<br/><small>ZOLL R Series</small></div>
+        </div>
+        <div class="device-card-float delay-1">
+          <div class="dcf-icon">🫁</div>
+          <div class="dcf-text">Ventilador<br/><small>PB 840</small></div>
+        </div>
+        <div class="device-card-float delay-2">
+          <div class="dcf-icon">📊</div>
+          <div class="dcf-text">Monitor Signos<br/><small>Philips MX450</small></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- DASHBOARD VIEW -->
+    <section id="view-dashboard" class="view active">
+      <div class="container">
+        <div class="section-header">
+          <h2>Base de Datos de Equipos</h2>
+          <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterEquipment('all')">Todos</button>
+            <button class="filter-btn" onclick="filterEquipment('desfibrilador')">Desfibriladores</button>
+            <button class="filter-btn" onclick="filterEquipment('ventilador')">Ventiladores</button>
+            <button class="filter-btn" onclick="filterEquipment('monitor')">Monitores</button>
+          </div>
+        </div>
+        <div class="equipment-grid" id="equipment-grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- QR GENERATOR VIEW -->
+    <section id="view-qr-generator" class="view">
+      <div class="container">
+        <div class="section-header">
+          <h2>Generador de Códigos QR</h2>
+          <p class="section-sub">Genera e imprime el QR para adherir físicamente a cada equipo.</p>
+        </div>
+        <div class="qr-workspace">
+          <div class="qr-selector">
+            <h3>Seleccionar Equipo</h3>
+            <div class="qr-device-list" id="qr-device-list">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+          <div class="qr-output" id="qr-output">
+            <div class="qr-placeholder">
+              <div class="qr-ph-icon">⬜</div>
+              <p>Selecciona un equipo para generar su QR</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GUIDE VIEW (shown when QR is scanned or clicked) -->
+    <section id="view-guide" class="view">
+      <div class="container">
+        <button class="back-btn" onclick="showView('dashboard')">← Volver</button>
+        <div id="guide-content">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN VIEW -->
+    <section id="view-admin" class="view">
+      <div class="container">
+        <div class="section-header">
+          <h2>Administrar Equipos</h2>
+          <p class="section-sub">Agrega, edita o desactiva registros en la base de datos.</p>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table" id="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th><th>Equipo</th><th>Marca/Modelo</th><th>Ubicación</th><th>Estado</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="admin-tbody"></tbody>
+          </table>
+        </div>
+        <div class="add-device-form" id="add-form">
+          <h3>➕ Agregar Nuevo Equipo</h3>
+          <div class="form-row">
+            <input class="form-input" id="f-name" placeholder="Nombre del equipo" />
+            <input class="form-input" id="f-model" placeholder="Marca / Modelo" />
+            <input class="form-input" id="f-location" placeholder="Ubicación (ej: UCI Piso 3)" />
+            <select class="form-input" id="f-type">
+              <option value="desfibrilador">Desfibrilador</option>
+              <option value="ventilador">Ventilador</option>
+              <option value="monitor">Monitor</option>
+            </select>
+            <button class="btn-primary" onclick="addDevice()">Agregar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- #app -->
+
+  <script src="src/data/equipment.js"></script>
+  <script src="src/components/equipmentCard.js"></script>
+  <script src="src/components/guideRenderer.js"></script>
+  <script src="src/components/qrGenerator.js"></script>
+  <script src="src/components/admin.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>
